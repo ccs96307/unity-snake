@@ -40,14 +40,7 @@ public class Player : MonoBehaviour {
 
 
     void Update() {
-        if (score == 500) flag = false;
-        else if (score == 1) flag = true;
-        if (flag) ++score;
-        else --score;
-        
-
-
-        bodyNum = ScoreAddBody(score);
+        bodyNum = ScoreChangeBodyNum(score);
         newDirection = jsMovement.InputDirection; //InputDirection can be used as per the need of your project
 
         // Direction
@@ -162,13 +155,13 @@ public class Player : MonoBehaviour {
         return direction;
     }
 
-    int ScoreAddBody(int score)
+    int ScoreChangeBodyNum(int score)
     {
         int moreBody = score / 100 + 4;
         return moreBody;
     }
 
-    int ScoreAddSize(int score)
+    int ScoreAdjustSize(int score)
     {
         int size = score / 100;
         return size;
