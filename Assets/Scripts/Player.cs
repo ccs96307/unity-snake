@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
@@ -15,7 +14,7 @@ public class Player : MonoBehaviour {
 
     // Player (snake head) position and rotation
     public List<Vector3> positionList;
-    private float pr = 0f;
+    private float playerRotation = 0f;
 
     // Player Info
     public int score = 0;
@@ -26,11 +25,8 @@ public class Player : MonoBehaviour {
     public List<GameObject> bodyList;
     public List<int> bodyPositionIndex;
     public float bodySize;
-    public float distanceWithHead = 0.5f;
-
-
-
-    public bool flag = true;
+    public int distanceWithEachOther = 7;
+    private bool recordEnable = true;
 
 
     void Start()
@@ -40,6 +36,27 @@ public class Player : MonoBehaviour {
 
 
     void Update() {
+        // Scale
+        transform.localScale = new Vector3(
+            3.0f + (0.1f * score / 500),
+            3.0f + (0.1f * score / 500),
+            0f
+        );
+
+        for (int i=0; i<bodyList.Count; ++i)
+        {
+            bodyList[i].transform.localScale = new Vector3(
+                3.0f + (0.1f * score / 500),
+                3.0f + (0.1f * score / 500),
+                0f
+            );
+        }
+
+        distanceWithEachOther = 7 + score / 2000;
+
+        // Text
+        GameObject.Find("Canvas/ScoreText").GetComponent<Text>().text = score.ToString();
+        
         bodyNum = ScoreChangeBodyNum(score);
         newDirection = jsMovement.InputDirection; //InputDirection can be used as per the need of your project
 
@@ -51,7 +68,7 @@ public class Player : MonoBehaviour {
         else
         {
             // Rotation
-            pr -= Vector2.SignedAngle(newDirection, oldDirection);
+            playerRotation -= Vector2.SignedAngle(newDirection, oldDirection);
 
             // Direction
             direction = newDirection;
@@ -60,7 +77,7 @@ public class Player : MonoBehaviour {
 
         direction = Normalization(direction);
         transform.position += direction * moveSpeed;
-        transform.localEulerAngles = new Vector3(0, 0, pr);
+        transform.localEulerAngles = new Vector3(0, 0, playerRotation);
 
 
         // Position List
@@ -72,7 +89,10 @@ public class Player : MonoBehaviour {
         }
         else if (bodyPositionIndex.Count == bodyNum)
         {
-            positionList.RemoveAt(0);
+            if (!recordEnable)
+            {
+                positionList.RemoveAt(0);
+            }
         }
         else if (bodyPositionIndex.Count > bodyNum)
         {
@@ -81,67 +101,51 @@ public class Player : MonoBehaviour {
             bodyList.RemoveAt(0);
         }
 
-
-        /*// Record body ball position
-        if (bodyPositionIndex.Count == 0)
-        {
-            if ((transform.position - positionList[0]).magnitude >= distanceWithHead)
-            {
-                bodyPositionIndex.Add(0);
-            }
-        }
-        else if (bodyPositionIndex.Count < bodyNum)
-        {
-            if ((positionList[bodyPositionIndex[bodyPositionIndex.Count - 1]] - positionList[0]).magnitude >= distanceWithHead)
-            {
-                bodyPositionIndex.Add(0);
-            }
-            
-            // Update body ball position
-            for (int i = 0; i < bodyPositionIndex.Count; ++i)
-            {
-                ++bodyPositionIndex[i];
-            }
-        }
-
-        // Don't need to record more trace
-        else if (bodyPositionIndex.Count == bodyNum)
-        {
-            positionList.RemoveAt(0);
-        }
-
-        // Remove extra balls
-        else if (bodyPositionIndex.Count > bodyNum)
-        {
-            positionList.RemoveAt(0);
-            Destroy(bodyList[0]);
-            bodyList.RemoveAt(0);
-            bodyPositionIndex.RemoveAt(bodyPositionIndex.Count - 1);
-        }*/
 
         // Move body balls to their position
         for (int i=0; i < bodyPositionIndex.Count; ++i)
         {
-            if (bodyList.Count > i)
+            int positionIndex = positionList.Count - ((i + 1) * distanceWithEachOther);
+            if (positionIndex < 0)
             {
-                //bodyList[i].gameObject.transform.position = positionList[bodyPositionIndex[i]];
-                bodyList[i].gameObject.transform.position = positionList[positionList.Count - ((i + 1) * 7)];
+                recordEnable = true;
+                break;
             }
-            else
+
+
+            if (bodyList.Count <= i)
             {
                 GameObject newBody = Instantiate(
                     body,
                     transform.position,
-                    gameObject.transform.parent.gameObject.transform.GetChild(1).gameObject.transform.rotation,
-                    gameObject.transform.parent.gameObject.transform.GetChild(1).gameObject.transform
+                    gameObject.transform.parent.gameObject.transform.rotation,
+                    gameObject.transform.parent.gameObject.transform
                 );
 
+                newBody.transform.SetSiblingIndex(transform.childCount - 1);
                 bodyList.Insert(0, newBody);
-                //bodyList[i].gameObject.transform.position = positionList[bodyPositionIndex[bodyPositionIndex.Count-i-1]];
-                bodyList[i].gameObject.transform.position = positionList[positionList.Count - ((i + 1) * 7)];
             }
+
+            bodyList[i].gameObject.transform.position = positionList[positionIndex];
+            recordEnable = false;
         }
     }
+
+
+    // Trigger
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Snake" || collision.gameObject.tag == "wall")
+        {
+            Destroy(gameObject);
+        }
+
+        else if (collision.gameObject.tag == "10_food")
+        {
+            score += 100;
+        }
+    }
+
 
 
     Vector3 Normalization(Vector3 direction)
