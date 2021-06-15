@@ -14,6 +14,7 @@ public class Player : MonoBehaviour {
 
     // Player (snake head) position and rotation
     public List<Vector3> positionList;
+    public List<Vector3> rotationList;
     private float playerRotation = 0f;
 
     // Player Info
@@ -35,7 +36,15 @@ public class Player : MonoBehaviour {
     }
 
 
-    void Update() {
+    void FixedUpdate() {
+        /*for (int i=0; i<bodyList.Count; ++i)
+        {
+            print("----------------------------------");
+            print(bodyList[i].name);
+            print(bodyList[i].gameObject.transform.GetSiblingIndex());
+            print("----------------------------------");
+        }*/
+
         // Scale
         transform.localScale = new Vector3(
             3.0f + (0.1f * score / 500),
@@ -82,8 +91,9 @@ public class Player : MonoBehaviour {
 
         // Position List
         positionList.Add(transform.position);
+        //rotationList.Add(new Vector3(0f, 0f, playerRotation-90f));
 
-        if (bodyPositionIndex.Count < bodyNum && positionList.Count > (bodyPositionIndex.Count+1)*7)
+        if (bodyPositionIndex.Count < bodyNum && positionList.Count > (bodyPositionIndex.Count+1)*distanceWithEachOther)
         {
             bodyPositionIndex.Add(0);
         }
@@ -92,6 +102,7 @@ public class Player : MonoBehaviour {
             if (!recordEnable)
             {
                 positionList.RemoveAt(0);
+                //rotationList.RemoveAt(0);
             }
         }
         else if (bodyPositionIndex.Count > bodyNum)
@@ -119,14 +130,17 @@ public class Player : MonoBehaviour {
                     body,
                     transform.position,
                     gameObject.transform.parent.gameObject.transform.rotation,
-                    gameObject.transform.parent.gameObject.transform
+                    gameObject.transform.parent.gameObject.transform.GetChild(1).gameObject.transform
                 );
 
-                newBody.transform.SetSiblingIndex(transform.childCount - 1);
+                //newBody.transform.SetAsLastSibling();
+                //newBody.transform.localEulerAngles += new Vector3(0, 0, -90f);
+                newBody.gameObject.GetComponent<SpriteRenderer>().sortingOrder = i;
                 bodyList.Insert(0, newBody);
             }
 
             bodyList[i].gameObject.transform.position = positionList[positionIndex];
+            //bodyList[i].gameObject.transform.localEulerAngles = rotationList[positionIndex];
             recordEnable = false;
         }
     }
