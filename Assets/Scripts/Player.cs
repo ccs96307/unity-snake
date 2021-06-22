@@ -1,147 +1,183 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class Player : MonoBehaviour {
-    // Speed
-    public static float moveSpeed = 0.08f;
-    
+
+public class Player : SnakeBase {
     // Joystick input
     public VJHandler jsMovement;
-    private Vector3 direction;
-    private Vector3 newDirection;
-    private Vector3 oldDirection = new Vector3(-0.01f, 0.0f, 0.0f);
 
-    // Player (snake head) position and rotation
-    public List<Vector3> positionList;
-    public List<Vector3> rotationList;
-    private float playerRotation = 0f;
+    // SpeedUp Button
+    public SpeedUpButtonEvent SpeedUpButton;
 
     // Player Info
-    public int score = 0;
-    public int bodyNum = 4;
+    int cameraSize;
+    int cameraChangeStep;
 
-    // Body Info
-    public GameObject body;
-    public List<GameObject> bodyList;
-    public List<int> bodyPositionIndex;
-    public float bodySize;
-    public int distanceWithEachOther = 7;
-    private bool recordEnable = true;
-
-
+    // Init
     void Start()
     {
+        // Score
+        this._score = 0;
 
+        // Sprites
+        this._spriteIndex = 2;
+        this._index2snakeSprite = this._InitializeIndex2Sprite();
+        string colorName = this._index2snakeSprite[this._spriteIndex];
+
+        this._headSprite = Resources.Load<Sprite>(this._colorName2HeadSprite(colorName));
+        this._bodySprite = Resources.Load<Sprite>(this._colorName2BodySprite(colorName));
+
+        this._bodyGameObject.GetComponent<SpriteRenderer>().sprite = this._bodySprite;
+        this._bigFoodObject.GetComponent<SpriteRenderer>().sprite = this._bodySprite;
+        gameObject.GetComponent<SpriteRenderer>().sprite = this._headSprite;
+
+        // Speed
+        this._basicMoveSpeed = 0.08f;
+
+        // Body
+        this._bodyNum = 4;
+        this._basicDistanceWithEachOther = 7;
+        this._distanceWithEachOtherStep = 200;
+        this._bodyGrowSize = 0.1f;
+        this._bodyGrowStep = 50;
+        this._positionRecordEnable = true;
+
+        // Camera (Player Only)
+        cameraSize = 7;
+        cameraChangeStep = 500;
+
+        // Name (Default)
+        this._username = "Clay";
+        gameObject.transform.parent.gameObject.transform.GetChild(2).gameObject.transform.GetChild(0).GetComponent<Text>().text = this._username;
     }
 
-
     void FixedUpdate() {
-        /*for (int i=0; i<bodyList.Count; ++i)
-        {
-            print("----------------------------------");
-            print(bodyList[i].name);
-            print(bodyList[i].gameObject.transform.GetSiblingIndex());
-            print("----------------------------------");
-        }*/
+        // Camera (Player Only)
+        Camera.main.orthographicSize = cameraSize + this._score / cameraChangeStep;
+        Camera.main.gameObject.transform.position = transform.position;
 
-        // Scale
-        transform.localScale = new Vector3(
-            3.0f + (0.1f * score / 500),
-            3.0f + (0.1f * score / 500),
+        // Head and Body Scales
+        Vector3 scaleSize = new Vector3(
+            3.0f + (this._bodyGrowSize * this._score / this._bodyGrowStep),
+            3.0f + (this._bodyGrowSize * this._score / this._bodyGrowStep),
             0f
         );
 
-        for (int i=0; i<bodyList.Count; ++i)
+        transform.localScale = scaleSize;
+        for (int i = 0; i < this._bodyList.Count; ++i) this._bodyList[i].transform.localScale = scaleSize;
+
+        // If SpeedUp Button is pressed down
+        if (SpeedUpButton.pressed == true && this._score > 0)
         {
-            bodyList[i].transform.localScale = new Vector3(
-                3.0f + (0.1f * score / 500),
-                3.0f + (0.1f * score / 500),
-                0f
-            );
+            // Speed Up
+            this._moveSpeed = 2 * this._basicMoveSpeed;
+
+            // Speed Up distances
+            this._distanceWithEachOther = this._basicDistanceWithEachOther-2 + (this._score / 200);
+
+            // When drop frames bigger than 25 frames, generate a 10-socres-food
+            ++this._dropFoodFrame;
+            if (this._dropFoodFrame >= 25)
+            {
+                this._smallFoodObject.GetComponent<SpriteRenderer>().sprite = this._bodySprite;
+                Instantiate(
+                    this._smallFoodObject,
+                    this._bodyList[this._bodyList.Count-1].transform.position,
+                    gameObject.transform.parent.gameObject.transform.rotation,
+                    GameObject.Find("Battle Scene").gameObject.transform
+                );
+                this._dropFoodFrame = 0;
+                --this._score;
+            }
+        }
+        else
+        {
+            // Normally move speed
+            this._moveSpeed = this._basicMoveSpeed;
+
+            // Normally distances of Head and Body
+            this._distanceWithEachOther = this._basicDistanceWithEachOther + (this._score / this._distanceWithEachOtherStep);
+
         }
 
-        distanceWithEachOther = 7 + score / 2000;
+        // Change the score text
+        GameObject.Find("Canvas/ScoreText").GetComponent<Text>().text = this._score.ToString();
 
-        // Text
-        GameObject.Find("Canvas/ScoreText").GetComponent<Text>().text = score.ToString();
-        
-        bodyNum = ScoreChangeBodyNum(score);
-        newDirection = jsMovement.InputDirection; //InputDirection can be used as per the need of your project
+        // Change the Body number according scores
+        this._bodyNum = this._ScoreChangeBodyNum(this._score);
+
+        // Get the Joystick input
+        this._newDirection = jsMovement.InputDirection;
 
         // Direction
-        if (newDirection.magnitude == 0)
+        if (this._newDirection.magnitude == 0)
         {
-            direction = oldDirection;
+            this._direction = this._oldDirection;
         }
         else
         {
             // Rotation
-            playerRotation -= Vector2.SignedAngle(newDirection, oldDirection);
+            this._playerRotation -= Vector2.SignedAngle(this._newDirection, this._oldDirection);
 
             // Direction
-            direction = newDirection;
-            oldDirection = newDirection;
+            this._direction = this._newDirection;
+            this._oldDirection = this._newDirection;
         }
 
-        direction = Normalization(direction);
-        transform.position += direction * moveSpeed;
-        transform.localEulerAngles = new Vector3(0, 0, playerRotation);
+        // Move the object
+        this._direction = this._Normalization(this._direction);
+        transform.position += this._direction * this._moveSpeed;
+        transform.localEulerAngles = new Vector3(0, 0, this._playerRotation);
 
 
         // Position List
-        positionList.Add(transform.position);
-        //rotationList.Add(new Vector3(0f, 0f, playerRotation-90f));
+        this._positionList.Add(transform.position);
 
-        if (bodyPositionIndex.Count < bodyNum && positionList.Count > (bodyPositionIndex.Count+1)*distanceWithEachOther)
+        if (this._bodyPositionIndex.Count < this._bodyNum && this._positionList.Count > (this._bodyPositionIndex.Count+1)* this._distanceWithEachOther)
         {
-            bodyPositionIndex.Add(0);
+            this._bodyPositionIndex.Add(0);
         }
-        else if (bodyPositionIndex.Count == bodyNum)
+        else if (this._bodyPositionIndex.Count == this._bodyNum)
         {
-            if (!recordEnable)
+            if (!this._positionRecordEnable)
             {
-                positionList.RemoveAt(0);
-                //rotationList.RemoveAt(0);
+                this._positionList.RemoveAt(0);
             }
         }
-        else if (bodyPositionIndex.Count > bodyNum)
+        else if (this._bodyPositionIndex.Count > this._bodyNum)
         {
-            bodyPositionIndex.RemoveAt(bodyPositionIndex.Count - 1);
-            Destroy(bodyList[0]);
-            bodyList.RemoveAt(0);
+            this._bodyPositionIndex.RemoveAt(this._bodyPositionIndex.Count - 1);
+            Destroy(this._bodyList[0]);
+            this._bodyList.RemoveAt(0);
         }
 
 
         // Move body balls to their position
-        for (int i=0; i < bodyPositionIndex.Count; ++i)
+        for (int i=0; i < this._bodyPositionIndex.Count; ++i)
         {
-            int positionIndex = positionList.Count - ((i + 1) * distanceWithEachOther);
+            int positionIndex = this._positionList.Count - 1 - ((i + 1) * this._distanceWithEachOther);
             if (positionIndex < 0)
             {
-                recordEnable = true;
+                this._positionRecordEnable = true;
                 break;
             }
 
 
-            if (bodyList.Count <= i)
+            if (this._bodyList.Count <= i)
             {
                 GameObject newBody = Instantiate(
-                    body,
+                    this._bodyGameObject,
                     transform.position,
                     gameObject.transform.parent.gameObject.transform.rotation,
                     gameObject.transform.parent.gameObject.transform.GetChild(1).gameObject.transform
                 );
 
-                //newBody.transform.SetAsLastSibling();
-                //newBody.transform.localEulerAngles += new Vector3(0, 0, -90f);
                 newBody.gameObject.GetComponent<SpriteRenderer>().sortingOrder = i;
-                bodyList.Insert(0, newBody);
+                this._bodyList.Insert(0, newBody);
             }
 
-            bodyList[i].gameObject.transform.position = positionList[positionIndex];
-            //bodyList[i].gameObject.transform.localEulerAngles = rotationList[positionIndex];
-            recordEnable = false;
+            this._bodyList[i].gameObject.transform.position = this._positionList[positionIndex];
+            this._positionRecordEnable = false;
         }
     }
 
@@ -149,40 +185,73 @@ public class Player : MonoBehaviour {
     // Trigger
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Snake" || collision.gameObject.tag == "wall")
+        if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "wall")
         {
-            Destroy(gameObject);
+            deadAndDestroy();
         }
+        else if (collision.gameObject.tag == "Snake")
+        {
+            bool safe = false;
+            for (int i=0; i<this._bodyList.Count; ++i)
+            {
+                if (collision.gameObject == this._bodyList[i])
+                {
+                    safe = true;
+                    break;
+                }
+            }
+
+            if (!safe) deadAndDestroy();
+        }
+        
 
         else if (collision.gameObject.tag == "10_food")
         {
-            score += 100;
+            this._score += 10;
+        }
+        else if (collision.gameObject.tag == "1_food")
+        {
+            ++this._score;
         }
     }
 
 
-
-    Vector3 Normalization(Vector3 direction)
+    // Dead
+    void deadAndDestroy()
     {
-        double normal = direction.x * direction.x + direction.y * direction.y;
-        normal = System.Math.Sqrt(normal);
+        // Generate 3 big food on the head
+        for (int i = 0; i < 3; ++i)
+        {
+            Instantiate(
+                this._bigFoodObject,
+                transform.position + new Vector3(Random.Range(-0.005f, 0.005f), Random.Range(-0.005f, 0.005f), 0f),
+                gameObject.transform.parent.gameObject.transform.rotation,
+                GameObject.Find("Battle Scene").gameObject.transform
+            );
+        }
 
-        direction.x *= (1 / (float)normal);
-        direction.y *= (1 / (float)normal);
-        
-        return direction;
+        // Generate the dead-big-foods
+        this._bigFoodObject.GetComponent<SpriteRenderer>().sprite = this._bodySprite;
+        for (int i = 0; i < 2; ++i)
+        {
+            for (int j = 0; j < this._bodyList.Count; ++j)
+            {
+                Instantiate(
+                    this._bigFoodObject,
+                    this._bodyList[j].gameObject.transform.position + new Vector3(Random.Range(-0.2f, 0.2f), Random.Range(-0.2f, 0.2f), 0f),
+                    this._bodyList[j].gameObject.transform.parent.gameObject.transform.rotation,
+                    GameObject.Find("Battle Scene").gameObject.transform
+                );
+            }
+        }
+
+        // Destroy head and body
+        Destroy(gameObject);
+
+        for (int i = 0; i < this._bodyList.Count; ++i)
+        {
+            Destroy(this._bodyList[i]);
+        }
     }
-
-    int ScoreChangeBodyNum(int score)
-    {
-        int moreBody = score / 100 + 4;
-        return moreBody;
-    }
-
-    int ScoreAdjustSize(int score)
-    {
-        int size = score / 100;
-        return size;
-    }
-
 }
+

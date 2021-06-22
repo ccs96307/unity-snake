@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CameraFollowPlayer : MonoBehaviour
 {
-    public GameObject player;
+    //public GameObject player;
 
 
     // Start is called before the first frame update
@@ -16,6 +16,7 @@ public class CameraFollowPlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = player.transform.position;
+        //transform.position = player.transform.position;
+        //Camera.main.orthographicSize = 10;
     }
 }
