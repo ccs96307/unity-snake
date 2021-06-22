@@ -25,10 +25,11 @@ public class Player : SnakeBase {
         string colorName = this._index2snakeSprite[this._spriteIndex];
 
         this._headSprite = Resources.Load<Sprite>(this._colorName2HeadSprite(colorName));
-        this._bodySprite = Resources.Load<Sprite>(this._colorName2BodySprite(colorName));
+        this._bodyGameObject = Resources.Load<GameObject>(this._colorName2BodySprite(colorName));
 
-        this._bodyGameObject.GetComponent<SpriteRenderer>().sprite = this._bodySprite;
-        this._bigFoodObject.GetComponent<SpriteRenderer>().sprite = this._bodySprite;
+        this._smallFoodObject = Resources.Load<GameObject>(this._colorName2SmallFoodObject(colorName));
+        this._bigFoodObject = Resources.Load<GameObject>(this._colorName2BigFoodObject(colorName));
+
         gameObject.GetComponent<SpriteRenderer>().sprite = this._headSprite;
 
         // Speed
@@ -38,7 +39,7 @@ public class Player : SnakeBase {
         this._bodyNum = 4;
         this._basicDistanceWithEachOther = 7;
         this._distanceWithEachOtherStep = 200;
-        this._bodyGrowSize = 0.1f;
+        this._bodyGrowSize = 0.05f;
         this._bodyGrowStep = 50;
         this._positionRecordEnable = true;
 
@@ -79,7 +80,6 @@ public class Player : SnakeBase {
             ++this._dropFoodFrame;
             if (this._dropFoodFrame >= 25)
             {
-                this._smallFoodObject.GetComponent<SpriteRenderer>().sprite = this._bodySprite;
                 Instantiate(
                     this._smallFoodObject,
                     this._bodyList[this._bodyList.Count-1].transform.position,
@@ -207,7 +207,7 @@ public class Player : SnakeBase {
 
         else if (collision.gameObject.tag == "10_food")
         {
-            this._score += 10;
+            this._score += 5;
         }
         else if (collision.gameObject.tag == "1_food")
         {
@@ -231,7 +231,6 @@ public class Player : SnakeBase {
         }
 
         // Generate the dead-big-foods
-        this._bigFoodObject.GetComponent<SpriteRenderer>().sprite = this._bodySprite;
         for (int i = 0; i < 2; ++i)
         {
             for (int j = 0; j < this._bodyList.Count; ++j)

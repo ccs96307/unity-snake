@@ -15,18 +15,19 @@ public class BasicEnemyScript : SnakeBase
     void Start()
     {
         // Score
-        this._score = 0;
+        this._score = Random.Range(0, 600);
 
         // Sprites
-        this._spriteIndex = 5;
+        this._spriteIndex = Random.Range(1, 11);
         this._index2snakeSprite = this._InitializeIndex2Sprite();
         string colorName = this._index2snakeSprite[this._spriteIndex];
 
         this._headSprite = Resources.Load<Sprite>(this._colorName2HeadSprite(colorName));
-        this._bodySprite = Resources.Load<Sprite>(this._colorName2BodySprite(colorName));
+        this._bodyGameObject = Resources.Load<GameObject>(this._colorName2BodySprite(colorName));
 
-        this._bodyGameObject.GetComponent<SpriteRenderer>().sprite = this._bodySprite;
-        this._bigFoodObject.GetComponent<SpriteRenderer>().sprite = this._bodySprite;
+        this._smallFoodObject = Resources.Load<GameObject>(this._colorName2SmallFoodObject(colorName));
+        this._bigFoodObject = Resources.Load<GameObject>(this._colorName2BigFoodObject(colorName));
+
         gameObject.GetComponent<SpriteRenderer>().sprite = this._headSprite;
 
         // Speed
@@ -36,13 +37,15 @@ public class BasicEnemyScript : SnakeBase
         this._bodyNum = 4;
         this._basicDistanceWithEachOther = 7;
         this._distanceWithEachOtherStep = 200;
-        this._bodyGrowSize = 0.1f;
+        this._bodyGrowSize = 0.05f;
         this._bodyGrowStep = 50;
         this._positionRecordEnable = true;
 
         // Name (Default)
         this._username = "John Wick";
-        transform.GetChild(0).gameObject.transform.GetComponent<Text>().text = this._username;
+        gameObject.transform.parent.gameObject.transform.GetChild(1).gameObject.transform.GetChild(0).gameObject.transform.GetComponent<TextMesh>().text = this._username;
+
+        //transform.GetChild(0).gameObject.transform.GetComponent<Text>().text = this._username;
     }
 
     // Update is called once per frame
@@ -71,7 +74,6 @@ public class BasicEnemyScript : SnakeBase
             ++this._dropFoodFrame;
             if (this._dropFoodFrame >= 25)
             {
-                this._smallFoodObject.GetComponent<SpriteRenderer>().sprite = this._bodySprite;
                 Instantiate(
                     this._smallFoodObject,
                     this._bodyList[this._bodyList.Count - 1].transform.position,
@@ -109,7 +111,6 @@ public class BasicEnemyScript : SnakeBase
 
             if (!safe)
             {
-                print("Danger!!");
                 Vector3 positionDiff = transform.position - sensor.colliderObject.transform.position;
                 positionDiff = Quaternion.Euler(0, Random.Range(-90, 90), 0) * positionDiff;
                 this._direction = positionDiff;
@@ -128,13 +129,11 @@ public class BasicEnemyScript : SnakeBase
         }
         else if (sensor.collisionStatus == 2)
         {
-            print("Big Food");
             this._direction = sensor.colliderObject.transform.position - transform.position;
             isSpeedUp = true;
         }
         else if (sensor.collisionStatus == 3)
         {
-            print("Small Food");
             this._direction = sensor.colliderObject.transform.position - transform.position;
             isSpeedUp = false;
         }
@@ -152,6 +151,8 @@ public class BasicEnemyScript : SnakeBase
 
         // Move the object
         sensor.collisionStatus = 0;
+
+        this._playerRotation -= Vector2.SignedAngle(this._direction, this._oldDirection);
 
         this._oldDirection = this._direction;
         this._direction = this._Normalization(this._direction);
@@ -234,7 +235,7 @@ public class BasicEnemyScript : SnakeBase
 
         else if (collision.gameObject.tag == "10_food")
         {
-            this._score += 10;
+            this._score += 5;
         }
         else if (collision.gameObject.tag == "1_food")
         {
@@ -258,7 +259,6 @@ public class BasicEnemyScript : SnakeBase
         }
 
         // Generate the dead-big-foods
-        this._bigFoodObject.GetComponent<SpriteRenderer>().sprite = this._bodySprite;
         for (int i = 0; i < 2; ++i)
         {
             for (int j = 0; j < this._bodyList.Count; ++j)

@@ -35,9 +35,8 @@ public abstract class SnakeBase : MonoBehaviour
     public Dictionary<int, string> _index2snakeSprite = new Dictionary<int, string>();
     public Dictionary<string, string> _spriteHeadTable = new Dictionary<string, string>();
     public Dictionary<string, string> _spriteBodyTable = new Dictionary<string, string>();
-
-    //public Sprite[] _spriteHeadArray;
-    //public Sprite[] _spriteBodyArray;
+    public Dictionary<string, string> _smallFoodTable = new Dictionary<string, string>();
+    public Dictionary<string, string> _bigFoodTable = new Dictionary<string, string>();
 
     public Sprite _headSprite;
     public Sprite _bodySprite;
@@ -94,20 +93,54 @@ public abstract class SnakeBase : MonoBehaviour
 
     protected string _colorName2BodySprite(string colorName)
     {
-        _spriteBodyTable.Add("hide", "Bodies/hide_snake_body");
-        _spriteBodyTable.Add("blue", "Bodies/blue_snake_body");
-        _spriteBodyTable.Add("cyan", "Bodies/cyan_snake_body");
-        _spriteBodyTable.Add("green", "Bodies/green_snake_body");
-        _spriteBodyTable.Add("grey", "Bodies/grey_snake_body");
-        _spriteBodyTable.Add("iron", "Bodies/iron_snake_body");
-        _spriteBodyTable.Add("orange", "Bodies/orange_snake_body");
-        _spriteBodyTable.Add("pink", "Bodies/pink_snake_body");
-        _spriteBodyTable.Add("purple", "Bodies/purple_snake_body");
-        _spriteBodyTable.Add("red", "Bodies/red_snake_body");
-        _spriteBodyTable.Add("white", "Bodies/white_snake_body");
-        _spriteBodyTable.Add("yellow", "Bodies/yellow_snake_body");
+        _spriteBodyTable.Add("hide", "Bodies/hide_body");
+        _spriteBodyTable.Add("blue", "Bodies/blue_body");
+        _spriteBodyTable.Add("cyan", "Bodies/cyan_body");
+        _spriteBodyTable.Add("green", "Bodies/green_body");
+        _spriteBodyTable.Add("grey", "Bodies/grey_body");
+        _spriteBodyTable.Add("iron", "Bodies/iron_body");
+        _spriteBodyTable.Add("orange", "Bodies/orange_body");
+        _spriteBodyTable.Add("pink", "Bodies/pink_body");
+        _spriteBodyTable.Add("purple", "Bodies/purple_body");
+        _spriteBodyTable.Add("red", "Bodies/red_body");
+        _spriteBodyTable.Add("white", "Bodies/white_body");
+        _spriteBodyTable.Add("yellow", "Bodies/yellow_body");
 
         return _spriteBodyTable[colorName];
+    }
+
+    protected string _colorName2SmallFoodObject(string colorName)
+    {
+        _smallFoodTable.Add("blue", "smallFoods/blue_smallFood");
+        _smallFoodTable.Add("cyan", "smallFoods/cyan_smallFood");
+        _smallFoodTable.Add("green", "smallFoods/green_smallFood");
+        _smallFoodTable.Add("grey", "smallFoods/grey_smallFood");
+        _smallFoodTable.Add("iron", "smallFoods/iron_smallFood");
+        _smallFoodTable.Add("orange", "smallFoods/orange_smallFood");
+        _smallFoodTable.Add("pink", "smallFoods/pink_smallFood");
+        _smallFoodTable.Add("purple", "smallFoods/purple_smallFood");
+        _smallFoodTable.Add("red", "smallFoods/red_smallFood");
+        _smallFoodTable.Add("white", "smallFoods/white_smallFood");
+        _smallFoodTable.Add("yellow", "smallFoods/yellow_smallFood");
+
+        return _smallFoodTable[colorName];
+    }
+
+    protected string _colorName2BigFoodObject(string colorName)
+    {
+        _bigFoodTable.Add("blue", "bigFoods/blue_bigFood");
+        _bigFoodTable.Add("cyan", "bigFoods/cyan_bigFood");
+        _bigFoodTable.Add("green", "bigFoods/green_bigFood");
+        _bigFoodTable.Add("grey", "bigFoods/grey_bigFood");
+        _bigFoodTable.Add("iron", "bigFoods/iron_bigFood");
+        _bigFoodTable.Add("orange", "bigFoods/orange_bigFood");
+        _bigFoodTable.Add("pink", "bigFoods/pink_bigFood");
+        _bigFoodTable.Add("purple", "bigFoods/purple_bigFood");
+        _bigFoodTable.Add("red", "bigFoods/red_bigFood");
+        _bigFoodTable.Add("white", "bigFoods/white_bigFood");
+        _bigFoodTable.Add("yellow", "bigFoods/yellow_bigFood");
+
+        return _bigFoodTable[colorName];
     }
 
     protected Vector3 _Normalization(Vector3 direction)

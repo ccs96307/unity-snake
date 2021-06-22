@@ -4,14 +4,13 @@ using UnityEngine;
 
 public class foodGenerator : MonoBehaviour
 {
-    public GameObject foodObject;
-    public Sprite[] spriteArray;
+    public GameObject[] smallFoodArray;
     public float bound = 197f;
 
     // Start is called before the first frame update
     void Start()
     {
-        spriteArray = Resources.LoadAll<Sprite>("Bodies/");
+        smallFoodArray = Resources.LoadAll<GameObject>("smallFoods/");
     }
 
     // Update is called once per frame
@@ -19,7 +18,7 @@ public class foodGenerator : MonoBehaviour
     {        
         if (transform.childCount < 2000)
         {
-            foodObject.GetComponent<SpriteRenderer>().sprite = spriteArray[Random.Range(0, spriteArray.Length-1)];
+            GameObject foodObject = smallFoodArray[Random.Range(0, smallFoodArray.Length-1)];
             for (int i=0; i<10; ++i)
             {
                 Instantiate(
