@@ -8,8 +8,15 @@ public class BasicEnemyScript : SnakeBase
     // Head Sensor
     public Sensor sensor;
 
+    // User Name
+    public GameObject usernameObject;
+
     // Strategy
-    private bool isSpeedUp = false;
+    public bool isSpeedUp = false;
+    private List<Vector3> colliderPosition = new List<Vector3>();
+    int currentFrame = 0;
+    int LastFrame = 0;
+    int collisionFrameClosed = 0;
 
     // Init
     void Start()
@@ -43,14 +50,14 @@ public class BasicEnemyScript : SnakeBase
 
         // Name (Default)
         this._username = "John Wick";
-        gameObject.transform.parent.gameObject.transform.GetChild(1).gameObject.transform.GetChild(0).gameObject.transform.GetComponent<TextMesh>().text = this._username;
-
-        //transform.GetChild(0).gameObject.transform.GetComponent<Text>().text = this._username;
+        usernameObject = gameObject.transform.parent.gameObject.transform.GetChild(2).gameObject;
+        usernameObject.transform.GetComponent<TextMesh>().text = this._username;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
+        ++currentFrame;
         // Head and Body Scales
         Vector3 scaleSize = new Vector3(
             3.0f + (this._bodyGrowSize * this._score / this._bodyGrowStep),
@@ -99,43 +106,76 @@ public class BasicEnemyScript : SnakeBase
         // Decise the direction
         if (sensor.collisionStatus == 1)
         {
+            colliderPosition.Add(sensor.colliderObject.transform.position);
+
             bool safe = false;
             for (int i = 0; i < this._bodyList.Count; ++i)
             {
-                if (sensor.colliderObject == this._bodyList[i])
+                if (sensor.colliderObject.GetInstanceID() == this._bodyList[i].GetInstanceID())
                 {
                     safe = true;
                     break;
                 }
             }
 
+            if (safe) print("safe");
+
             if (!safe)
             {
-                Vector3 positionDiff = transform.position - sensor.colliderObject.transform.position;
-                positionDiff = Quaternion.Euler(0, Random.Range(-90, 90), 0) * positionDiff;
-                this._direction = positionDiff;
+                if (currentFrame - LastFrame < 5) ++collisionFrameClosed;
             }
+
+            LastFrame = currentFrame;
+
+
+            if (!safe && collisionFrameClosed >= 3)
+            {
+                this._direction = this._positionList[this._positionList.Count - 20] - this._positionList[this._positionList.Count - 1];
+                this._direction = Quaternion.Euler(0, Random.Range(-80, 80), 0) * this._direction;
+                currentFrame = 0;
+                LastFrame = 0;
+                collisionFrameClosed = 0;
+            }
+            else if (!safe)
+            {
+                Vector3 positionDiff = transform.position - sensor.colliderObject.transform.position;
+                positionDiff = Quaternion.Euler(0, Random.Range(-80, 80), 0) * positionDiff;
+                this._direction = positionDiff;
+
+                //if (currentFrame - LastFrame < 5)
+                //{
+                //    ++collisionFrameClosed;
+                //    LastFrame = currentFrame;
+                //}
+            }
+
             else
             {
-                if (Random.Range(0, 1000) > 997f)
+                print("撞到自己！");
+                print(this._oldDirection);
+                if (Random.Range(0, 1000) > 850)
                 {
                     this._direction = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f);
                 }
                 else
                 {
                     this._direction = this._oldDirection;
+                    isSpeedUp = false;
                 }
+                colliderPosition.Clear();
             }
         }
         else if (sensor.collisionStatus == 2)
         {
             this._direction = sensor.colliderObject.transform.position - transform.position;
             isSpeedUp = true;
+            colliderPosition.Clear();
         }
         else if (sensor.collisionStatus == 3)
         {
             this._direction = sensor.colliderObject.transform.position - transform.position;
             isSpeedUp = false;
+            colliderPosition.Clear();
         }
         else if (sensor.collisionStatus == 0)
         {
@@ -146,7 +186,9 @@ public class BasicEnemyScript : SnakeBase
             else
             {
                 this._direction = this._oldDirection;
+                isSpeedUp = false;
             }
+            colliderPosition.Clear();
         }
 
         // Move the object
@@ -157,7 +199,9 @@ public class BasicEnemyScript : SnakeBase
         this._oldDirection = this._direction;
         this._direction = this._Normalization(this._direction);
         transform.position += this._direction * this._moveSpeed;
+        usernameObject.transform.position += this._direction * this._moveSpeed;
         transform.localEulerAngles = new Vector3(0, 0, this._playerRotation);
+
 
         // Position List
         this._positionList.Add(transform.position);

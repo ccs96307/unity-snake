@@ -3,6 +3,9 @@ using UnityEngine.UI;
 
 
 public class Player : SnakeBase {
+    // Player Data
+    GameData currentPlayerData = new GameData();
+
     // Joystick input
     public VJHandler jsMovement;
 
@@ -16,8 +19,15 @@ public class Player : SnakeBase {
     // Init
     void Start()
     {
+        // Load Save File
+        SaveManager.LoadGame();
+        if (SaveManager.dataList.Count != 0) currentPlayerData = SaveManager.dataList[0];
+        
         // Score
-        this._score = 0;
+        if (currentPlayerData.HighestScore != 0) this._score = currentPlayerData.HighestScore;
+        else this._score = 0;
+
+        print("Highest Score: " + currentPlayerData.HighestScore.ToString());
 
         // Sprites
         this._spriteIndex = 2;
@@ -243,6 +253,11 @@ public class Player : SnakeBase {
                 );
             }
         }
+
+        // Save
+        currentPlayerData.HighestScore = this._score;
+        //GameData.currentGame.HighestScore = this._score;
+        SaveManager.SaveGame(currentPlayerData);
 
         // Destroy head and body
         Destroy(gameObject);

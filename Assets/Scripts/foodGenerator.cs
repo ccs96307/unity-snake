@@ -15,11 +15,11 @@ public class foodGenerator : MonoBehaviour
 
     // Update is called once per frame
     void FixedUpdate()
-    {        
+    {
         if (transform.childCount < 2000)
         {
-            GameObject foodObject = smallFoodArray[Random.Range(0, smallFoodArray.Length-1)];
-            for (int i=0; i<10; ++i)
+            GameObject foodObject = smallFoodArray[Random.Range(0, smallFoodArray.Length - 1)];
+            for (int i = 0; i < 10; ++i)
             {
                 Instantiate(
                     foodObject,
