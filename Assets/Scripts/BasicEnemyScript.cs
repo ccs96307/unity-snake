@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class BasicEnemyScript : SnakeBase
 {
@@ -25,7 +24,7 @@ public class BasicEnemyScript : SnakeBase
         this._score = Random.Range(0, 600);
 
         // Sprites
-        this._spriteIndex = Random.Range(1, 11);
+        if (this._spriteIndex == 0) this._spriteIndex = Random.Range(1, 11);
         this._index2snakeSprite = this._InitializeIndex2Sprite();
         string colorName = this._index2snakeSprite[this._spriteIndex];
 
@@ -37,12 +36,7 @@ public class BasicEnemyScript : SnakeBase
 
         gameObject.GetComponent<SpriteRenderer>().sprite = this._headSprite;
 
-        // Speed
-        this._basicMoveSpeed = 0.08f;
-
         // Body
-        this._bodyNum = 4;
-        this._basicDistanceWithEachOther = 7;
         this._distanceWithEachOtherStep = 200;
         this._bodyGrowSize = 0.05f;
         this._bodyGrowStep = 50;
@@ -104,66 +98,33 @@ public class BasicEnemyScript : SnakeBase
         this._bodyNum = this._ScoreChangeBodyNum(this._score);
 
         // Decise the direction
-        if (sensor.collisionStatus == 1)
+        if (sensor.collisionStatus == 1 || sensor.collisionStatus == 4)
         {
             colliderPosition.Add(sensor.colliderObject.transform.position);
+            bool isSafe = false;
 
-            bool safe = false;
-            for (int i = 0; i < this._bodyList.Count; ++i)
-            {
-                if (sensor.colliderObject.GetInstanceID() == this._bodyList[i].GetInstanceID())
+            if (sensor.colliderObject.tag == "Snake") 
+                for (int i = 0; i < this._bodyList.Count; ++i)
                 {
-                    safe = true;
-                    break;
+                    if (sensor.colliderObject.GetInstanceID() == this._bodyList[i].GetInstanceID())
+                    {
+                  
+                        isSafe = true;
+                        break;
+                    }
                 }
-            }
 
-            if (safe) print("safe");
-
-            if (!safe)
-            {
-                if (currentFrame - LastFrame < 5) ++collisionFrameClosed;
-            }
-
-            LastFrame = currentFrame;
-
-
-            if (!safe && collisionFrameClosed >= 3)
+            if (!isSafe)
             {
                 this._direction = this._positionList[this._positionList.Count - 20] - this._positionList[this._positionList.Count - 1];
-                this._direction = Quaternion.Euler(0, Random.Range(-80, 80), 0) * this._direction;
-                currentFrame = 0;
-                LastFrame = 0;
-                collisionFrameClosed = 0;
-            }
-            else if (!safe)
-            {
-                Vector3 positionDiff = transform.position - sensor.colliderObject.transform.position;
-                positionDiff = Quaternion.Euler(0, Random.Range(-80, 80), 0) * positionDiff;
-                this._direction = positionDiff;
+                this._direction = Quaternion.Euler(0, 0, Random.Range(-80, 80)) * this._direction;
+                //Vector3 diff = sensor.colliderObject.transform.position - transform.position;
 
-                //if (currentFrame - LastFrame < 5)
-                //{
-                //    ++collisionFrameClosed;
-                //    LastFrame = currentFrame;
-                //}
+                //float signedAngle = Vector2.SignedAngle(diff, this._direction);
+                //if (signedAngle > 0) this._direction = Quaternion.Euler(0, 0, 30f) * this._direction;
+               // else this._direction = Quaternion.Euler(0, 0, -30f) * this._direction;
             }
 
-            else
-            {
-                print("撞到自己！");
-                print(this._oldDirection);
-                if (Random.Range(0, 1000) > 850)
-                {
-                    this._direction = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f);
-                }
-                else
-                {
-                    this._direction = this._oldDirection;
-                    isSpeedUp = false;
-                }
-                colliderPosition.Clear();
-            }
         }
         else if (sensor.collisionStatus == 2)
         {
@@ -179,7 +140,7 @@ public class BasicEnemyScript : SnakeBase
         }
         else if (sensor.collisionStatus == 0)
         {
-            if (Random.Range(0, 1000) > 997)
+            if (Random.Range(0, 1000) > 995)
             {
                 this._direction = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f);
             }

@@ -42,7 +42,7 @@ public class RankingTable : MonoBehaviour
         {
             for (int j=0; j<orderScores.Count-1; ++j)
             {
-                if (orderScores[j] > orderScores[j+1])
+                if (orderScores[j] < orderScores[j+1])
                 {
                     int tempScore = orderScores[j];
                     string tempUsername = orderUsername[j];

@@ -8,7 +8,13 @@ public class Sensor : MonoBehaviour
     // Trigger
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "wall" || collision.gameObject.tag == "Snake")
+        if (collision.gameObject.tag == "Player")
+        {
+            collisionStatus = 4;
+            colliderObject = collision.gameObject;
+        }
+
+        if (collision.gameObject.tag == "wall" || collision.gameObject.tag == "Snake")
         {
             collisionStatus = 1;
             colliderObject = collision.gameObject;

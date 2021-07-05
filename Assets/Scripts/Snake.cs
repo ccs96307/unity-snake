@@ -9,7 +9,7 @@ public abstract class SnakeBase : MonoBehaviour
 
     // Speed
     protected bool _speedUp;
-    protected float _basicMoveSpeed;
+    protected float _basicMoveSpeed = 0.06f;
     protected float _moveSpeed;
 
     // Food
@@ -40,17 +40,18 @@ public abstract class SnakeBase : MonoBehaviour
 
     public Sprite _headSprite;
     public Sprite _bodySprite;
-    protected int _spriteIndex;
+    public int _spriteIndex;
 
     // Body Info
     public GameObject _bodyGameObject;
     public List<GameObject> _bodyList;
     public List<int> _bodyPositionIndex;
-    protected int _bodyNum;
+
+    protected int _bodyNum = 4;
     protected float _bodyGrowSize;
     protected int _bodyGrowStep;
 
-    protected int _basicDistanceWithEachOther = 7;
+    protected int _basicDistanceWithEachOther = 8;
     protected int _distanceWithEachOther;
     protected int _distanceWithEachOtherStep;
     protected bool _positionRecordEnable;

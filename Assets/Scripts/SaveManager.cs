@@ -6,7 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public class SaveManager : MonoBehaviour
 {
-    //建立一个数据容器，用来保存数据源
+    // Create a save data container to store data
     public static List<GameData> dataList = new List<GameData>();
 
     private static SaveManager _instance;
@@ -28,7 +28,7 @@ public class SaveManager : MonoBehaviour
     /// </summary>
     public static void SaveGame(GameData currentGameData)
     {
-        string savePath = Application.dataPath + "/Save/";
+        string savePath = Application.persistentDataPath + "/Save/";
         if (!Directory.Exists(savePath))
         {
             Directory.CreateDirectory(savePath);
@@ -49,9 +49,9 @@ public class SaveManager : MonoBehaviour
     /// </summary>
     public static void LoadGame()
     {
-        if (File.Exists(Application.dataPath + "/Save/snake.save"))
+        if (File.Exists(Application.persistentDataPath + "/Save/snake.sav"))
         {
-            FileStream file = new FileStream(Application.dataPath + "/Save/snake.sav", FileMode.Open);
+            FileStream file = new FileStream(Application.persistentDataPath + "/Save/snake.sav", FileMode.Open);
             BinaryFormatter bf = new BinaryFormatter();
 
             dataList = bf.Deserialize(file) as List<GameData>;

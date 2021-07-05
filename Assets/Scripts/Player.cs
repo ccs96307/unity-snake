@@ -16,6 +16,10 @@ public class Player : SnakeBase {
     int cameraSize;
     int cameraChangeStep;
 
+    // Sounds
+    public AudioClip eatSound;
+    private AudioSource myAudioSource;
+
     // Init
     void Start()
     {
@@ -42,24 +46,24 @@ public class Player : SnakeBase {
 
         gameObject.GetComponent<SpriteRenderer>().sprite = this._headSprite;
 
-        // Speed
-        this._basicMoveSpeed = 0.08f;
-
         // Body
         this._bodyNum = 4;
-        this._basicDistanceWithEachOther = 7;
+        this._basicDistanceWithEachOther = 8;
         this._distanceWithEachOtherStep = 200;
         this._bodyGrowSize = 0.05f;
         this._bodyGrowStep = 50;
         this._positionRecordEnable = true;
 
         // Camera (Player Only)
-        cameraSize = 7;
+        cameraSize = 9;
         cameraChangeStep = 500;
 
         // Name (Default)
         this._username = "Clay";
         gameObject.transform.parent.gameObject.transform.GetChild(2).gameObject.transform.GetChild(0).GetComponent<Text>().text = this._username;
+
+        // Sounds
+        myAudioSource = GetComponent<AudioSource>();
     }
 
     void FixedUpdate() {
@@ -218,10 +222,12 @@ public class Player : SnakeBase {
         else if (collision.gameObject.tag == "10_food")
         {
             this._score += 5;
+            myAudioSource.PlayOneShot(eatSound);
         }
         else if (collision.gameObject.tag == "1_food")
         {
             ++this._score;
+            myAudioSource.PlayOneShot(eatSound);
         }
     }
 
