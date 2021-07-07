@@ -120,9 +120,7 @@ public class BasicEnemyScript : SnakeBase
                 this._direction = Quaternion.Euler(0, 0, Random.Range(-80, 80)) * this._direction;
                 //Vector3 diff = sensor.colliderObject.transform.position - transform.position;
 
-                //float signedAngle = Vector2.SignedAngle(diff, this._direction);
-                //if (signedAngle > 0) this._direction = Quaternion.Euler(0, 0, 30f) * this._direction;
-               // else this._direction = Quaternion.Euler(0, 0, -30f) * this._direction;
+                //this._direction = Quaternion.Euler(0, 0, 3f) * this._direction;
             }
 
         }

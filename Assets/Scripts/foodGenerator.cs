@@ -5,11 +5,11 @@ using UnityEngine;
 public class foodGenerator : MonoBehaviour
 {
     public GameObject[] smallFoodArray;
-    public float bound = 197f;
+    public float bound = 100f;
 
     // Start is called before the first frame update
     void Start()
-    {
+    {    
         smallFoodArray = Resources.LoadAll<GameObject>("smallFoods/");
     }
 
@@ -23,7 +23,7 @@ public class foodGenerator : MonoBehaviour
             {
                 Instantiate(
                     foodObject,
-                    new Vector3(Random.Range(-bound, bound), Random.Range(-bound, bound), 0f),
+                    new Vector3(Random.Range(-bound, bound)+transform.position.x, Random.Range(-bound, bound)+transform.position.y, 0f),
                     transform.rotation,
                     transform
                 );
