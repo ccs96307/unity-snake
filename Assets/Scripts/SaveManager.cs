@@ -58,10 +58,41 @@ public class SaveManager : MonoBehaviour
             file.Close();
 
             print("Loaded.");
+            print(Application.persistentDataPath);
         }
         else
         {
             print("Cannot found the save file.");
+
+            // Initialize a new GameData object
+            GameData newGameData = new GameData();
+
+            // Info
+            newGameData.UserName = "player";
+            newGameData.Coin = 0;
+            newGameData.HighestScore = 0;
+
+            // Skin
+            newGameData.BuySkin.Add(0, true);
+            newGameData.BuySkin.Add(1, true);
+            newGameData.BuySkin.Add(2, false);
+            newGameData.BuySkin.Add(3, false);
+            newGameData.BuySkin.Add(4, false);
+            newGameData.BuySkin.Add(5, false);
+            newGameData.BuySkin.Add(6, false);
+            newGameData.BuySkin.Add(7, false);
+            newGameData.BuySkin.Add(8, false);
+            newGameData.BuySkin.Add(9, false);
+            newGameData.BuySkin.Add(10, false);
+            newGameData.BuySkin.Add(11, false);
+            newGameData.CurrentUsedSkin = 1;
+
+            // Ability
+            newGameData.maxVision = 0;
+            newGameData.currentVision = 0;
+
+            //!!!!!Add to List!!!!
+            dataList.Add(newGameData);
         }
     }
 
@@ -77,8 +108,8 @@ public class GameData
     public int HighestScore;
 
     // Skin
-    public Dictionary<string, bool> BuySkin;
-    public string CurrentUsedSkin;
+    public Dictionary<int, bool> BuySkin = new Dictionary<int, bool>();
+    public int CurrentUsedSkin;
 
     // Ability
     public int maxVision;
