@@ -73,18 +73,18 @@ public class SaveManager : MonoBehaviour
             newGameData.HighestScore = 0;
 
             // Skin
-            newGameData.BuySkin.Add(0, true);
-            newGameData.BuySkin.Add(1, true);
-            newGameData.BuySkin.Add(2, false);
-            newGameData.BuySkin.Add(3, false);
-            newGameData.BuySkin.Add(4, false);
-            newGameData.BuySkin.Add(5, false);
-            newGameData.BuySkin.Add(6, false);
-            newGameData.BuySkin.Add(7, false);
-            newGameData.BuySkin.Add(8, false);
-            newGameData.BuySkin.Add(9, false);
-            newGameData.BuySkin.Add(10, false);
-            newGameData.BuySkin.Add(11, false);
+            newGameData.BuySkinDict.Add(0, true);
+            newGameData.BuySkinDict.Add(1, true);
+            newGameData.BuySkinDict.Add(2, false);
+            newGameData.BuySkinDict.Add(3, false);
+            newGameData.BuySkinDict.Add(4, false);
+            newGameData.BuySkinDict.Add(5, false);
+            newGameData.BuySkinDict.Add(6, false);
+            newGameData.BuySkinDict.Add(7, false);
+            newGameData.BuySkinDict.Add(8, false);
+            newGameData.BuySkinDict.Add(9, false);
+            newGameData.BuySkinDict.Add(10, false);
+            newGameData.BuySkinDict.Add(11, false);
             newGameData.CurrentUsedSkin = 1;
 
             // Ability
@@ -108,7 +108,7 @@ public class GameData
     public int HighestScore;
 
     // Skin
-    public Dictionary<int, bool> BuySkin = new Dictionary<int, bool>();
+    public Dictionary<int, bool> BuySkinDict = new Dictionary<int, bool>();
     public int CurrentUsedSkin;
 
     // Ability
